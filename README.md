@@ -30,6 +30,8 @@ This script iterates through all objects in a specified Amazon S3 bucket and sea
 
 ### Parameters
 
+I was lazy and the parameters can be set inside code at the end of the file. Of course I can implement argparse or even better make it a fastapi endpoint returning a json, but that was not in scope, so I stayed lazy with regards to this.
+
 - **s3_bucket_name:** The name of the S3 bucket to search.
 - **substring:** The substring to search for within text files.
 - **debug:** (Optional) If set to `True`, provides detailed debug output.
@@ -69,11 +71,11 @@ Each object has metadata, and by default, AWS assigns the `Content-Type` (a syst
 - Renaming a binary file to `binary.txt` and uploading it still recognizes it as `text/plain`, which is incorrect.
 - Checking the content type automatically using a Python method to verify if the content is binary or not.
 - Executing this method takes a lot of time, so processed files (object key + etag + content type + search string) are saved to a pickle file for later use. This approach is vulnerable to content type changes but provides some help.
-- For changes, comparing the bulk content page metadata with the pickle file to generate the list for processing is faster than iterating through each key and checking it against the pickle file.
+- In order to efficiently process only the files which were changed I thought of comparing the bulk content page metadata with the pickle file to generate the list for processing because it will be faster than iterating through each key and checking it against the pickle file.
 
 ### Development Steps
 
-#### Dummy Approach:
+#### Dummy Approach (Search in all objects ending with .txt):
 
 1. List all objects
 2. Filter objects ending with `.txt`
@@ -84,23 +86,23 @@ Each object has metadata, and by default, AWS assigns the `Content-Type` (a syst
 ##### Problems:
 
 1. Text files are not only those ending with `.txt`; for example, a file ending with `.json` is also a text file.
-2. The `list_objects` only returns 1000 items, so pagination is needed. Storing tens of thousands or millions of object keys in a single response can be memory intensive, and waiting for a huge response can also cause network problems.
+2. The `list_objects` only returns 1000 items, so pagination is needed to get them all.
 
-#### Skiddie Approach:
+#### A better Approach (Search in all objects with Content-Type: text/plain):
 
 1. List all objects using a paginator
-2. Check if the page content returns the metadata (it doesn't)
+2. Check if the page content returns the metadata with regards to Content-Type (it doesn't)
 3. For each key in the page, get metadata
-4. If metadata = `text/plain`, search for the string in the object
+4. If metadata content-type = `text/plain`, search for the string in the object
 5. If the string is found, append to the list
 6. Return the list
 
 ##### Problems:
 
-1. Getting metadata for each object is slow as you need to run `get metadata` for each key.
+1. Getting metadata for each object is slow as you need to run `get metadata` for each key (there is no bulk option).
 2. Renaming a binary file to `whatever.txt` changes the metadata to `text/plain`, which is incorrect.
 
-#### Dig Deeper:
+#### Complex Approach:
 
 1. List all objects using a paginator
 2. Loop through page keys and run a method to check if the file is binary or not (against UTF-8)
@@ -118,24 +120,29 @@ Each object has metadata, and by default, AWS assigns the `Content-Type` (a syst
 2. For all objects in the page, do a bulk query in the pickle to return only the objects for which the etag (hash - content of the file) was modified. Return the keys which were modified or missing in the pickle.
 3. Loop through returned keys and run the method to check if the file is binary or not.
 4. Save the outcome in a pickle or anywhere cheap that you can reuse later:
+    - Bucket in the name of the pickle file
     - Object key as index
     - Etag as hash
     - File type returned by the method
+    - The search substring (as initially the results from the cache was returned despite the search substring being changed)
 5. If the file is not binary, search for the string.
 6. If the string is found, add to the list.
 7. Return the list.
-8. Make the code production-ready (most important is retry mechanism if a query for something fails).
-9. I don't mention unit testing/code coverage - these are possible but I'm DevOps.
+8. I didn't mention unit testing/code coverage - these are possible but I never mocked S3 and I don't focused my time on explaining the concept and make it work on multiple cases
+
+##### Problems:
+
+- Still quite slow for first run against a lot of files or big files but I'm not aware of any possibility of doing it faster using AWS existing calls
 
 ### Challenges Not Considered:
 
-- Multipart upload (potential issues if no retry mechanisms are implemented).
+- Multipart upload (I did not looked into this but I've seen something in AWS documentation mentioning this and I think it might create problems)
 - Ignored files from Glacier/Non-Standard storage.
 
 ### Other Ideas:
 
-- In an environment where data is structured and you need to look in S3 buckets, you can use Athena + Glue. This will add partitions (data-based most of the time, but you can define others if needed) and you can search (pretty fast) for anything that you are interested in (as long as you know what you need). This is good for structured text data, but it applies to formats like CSV, JSON, Parquet, and/or compressed versions of these files under GZIP or Snappy format.
+- In an environment where data is structured and you need to look in S3 buckets, you can use Athena + Glue. This will add partitions (data-based most of the time, but you can define others if needed) and you can search (pretty fast) for anything that you are interested in (as long as you know what you need). This is good for structured text data, but it applies to formats like CSV, JSON, Parquet, and/or compressed versions of these files under GZIP or Snappy format. In the end you will end up having an SQL like database where you can run SQL Queries or use Amazon QuickSight for visual GInsights
 
-### Testing
+### Testing (as mentioned no unit testing or other type of testing but I did some "live" testing)
 
-I used [GrayHatWarfare S3 Buckets](https://buckets.grayhatwarfare.com/) for live testing.
+I used [GrayHatWarfare S3 Buckets](https://buckets.grayhatwarfare.com/) for testing.
