@@ -54,9 +54,9 @@ It would have been better to have a fastapi endpoint returning a json, but that 
 python3 s3_substring_search.py <s3_bucket_name> <substring> [--debug]
 ```
 
-`<s3_bucket_name>`: Replace with the name of your S3 bucket.
-`<substring>`: Replace with the substring you want to search for.
-`[--debug]`: Optional flag to enable debug mode for detailed output.
+- `<s3_bucket_name>`: Replace with the name of your S3 bucket.
+- `<substring>`: Replace with the substring you want to search for.
+- `[--debug]`: Optional flag to enable debug mode for detailed output.
 
 ### Example Usage
 
@@ -87,4 +87,4 @@ The script provides detailed batch and summary outputs, including:
 - **Changed keys**
 
 ### How this was developed
-In order to understand what my approach was, please check [my approach](https://github.com/DarkZatarra/limehome_s3_challenge/blob/main/DanielsApproach.MD)
+In order to understand what my approach was, please check [my approach](https://github.com/DarkZatarra/limehome_s3_challenge/blob/main/DanielsApproach.md)
