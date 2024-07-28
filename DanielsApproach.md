@@ -72,6 +72,7 @@ Each object has metadata, and by default, AWS assigns the `Content-Type` (a syst
 6. If the string is found, add to the list.
 7. Return the list.
 8. I didn't mention unit testing/code coverage - these are possible but I never mocked S3 and I don't focused my time on explaining the concept and make it work on multiple cases
+9. Added extension support in case fast testing against txt files is needed
 
 ##### Problems:
 

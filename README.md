@@ -51,11 +51,12 @@ It would have been better to have a fastapi endpoint returning a json, but that 
 ### Example
 
 ```bash
-python3 s3_substring_search.py <s3_bucket_name> <substring> [--debug]
+python3 s3_substring_search.py <s3_bucket_name> <substring> [--extension EXTENSION] [--debug]
 ```
 
 - `<s3_bucket_name>`: Replace with the name of your S3 bucket.
 - `<substring>`: Replace with the substring you want to search for.
+- `[--extension]`: Optional flag to enable extension filtering.
 - `[--debug]`: Optional flag to enable debug mode for detailed output.
 
 ### Example Usage
@@ -70,6 +71,12 @@ To run the script without debug mode:
 
 ```
 python3 s3_substring_search.py my-bucket example
+```
+
+To run the script with extension filtering:
+
+```
+python3 s3_substring_search.py my-bucket example --extension .txt
 ```
 
 ### Output

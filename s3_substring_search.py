@@ -134,7 +134,7 @@ def process_batch(s3, s3_bucket_name, batch_keys, etags, substring, cache, batch
     changed_keys = []
 
     batch_size = len(batch_keys)
-    progress_checkpoints = [int(batch_size * 0.25), int(batch_size * 0.50), int(batch_size * 0.75), batch_size]
+    progress_checkpoints = [round(batch_size * 0.25), round(batch_size * 0.50), round(batch_size * 0.75), batch_size]
     progress_counter = 0
 
     print(f"========== Starting Batch {batch_number} ==========")
@@ -214,7 +214,7 @@ def process_batch(s3, s3_bucket_name, batch_keys, etags, substring, cache, batch
             content_assess_error_count_cache, content_assess_error_count_non_cache, matching_files, access_denied_files,
             non_standard_storage_class_files, folder_files, content_get_error_files, content_assess_error_files, changed_keys)
 
-def find_files_with_substring(s3_bucket_name, substring, debug=False):
+def find_files_with_substring(s3_bucket_name, substring, extension=None, debug=False):
     if not s3_bucket_name:
         print("Bucket name is not set.")
         return []
@@ -266,6 +266,9 @@ def find_files_with_substring(s3_bucket_name, substring, debug=False):
             non_standard_keys = [obj['Key'] for obj in page.get('Contents', []) if obj.get('StorageClass') not in [None, 'STANDARD']]
             total_non_standard_storage_class_non_cache += len(non_standard_keys)
             total_files += len(file_keys) + len(non_standard_keys)
+
+            if extension:
+                file_keys = [key for key in file_keys if key.endswith(extension)]
 
             for batch_start in range(0, len(file_keys), BATCH_SIZE):
                 batch_counter += 1
@@ -378,8 +381,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Search for a substring in text files within an S3 bucket.')
     parser.add_argument('s3_bucket_name', type=str, help='The name of the S3 bucket.')
     parser.add_argument('substring', type=str, help='The substring to search for.')
+    parser.add_argument('--extension', type=str, help='Filter files by extension (e.g., .txt).')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode for detailed output.')
 
     args = parser.parse_args()
 
-    find_files_with_substring(args.s3_bucket_name, args.substring, args.debug)
+    find_files_with_substring(args.s3_bucket_name, args.substring, args.extension, args.debug)
