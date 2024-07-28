@@ -37,11 +37,7 @@ export AWS_DEFAULT_REGION=your_default_region
 
 ### Parameters
 
-It would be better to have a fastapi endpoint returning a json, but that was not in scope, so I stayed lazy with regards to this.
-
-- **s3_bucket_name:** The name of the S3 bucket to search.
-- **substring:** The substring to search for within text files.
-- **debug:** (Optional) If set to `True`, provides detailed debug output.
+It would have been better to have a fastapi endpoint returning a json, but that was not in scope, so I stayed lazy with regards to this.
 
 ### Running the Script
 
