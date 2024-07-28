@@ -17,7 +17,6 @@ This script iterates through all objects in a specified Amazon S3 bucket and sea
 
 - Python 3.x
 - Boto3 library
-- Retry library
 
 ## Installation
 
@@ -27,6 +26,14 @@ This script iterates through all objects in a specified Amazon S3 bucket and sea
     `pip install boto3`
 
 ## Usage
+
+### Configure AWS Credentials
+
+```
+export AWS_ACCESS_KEY_ID=your_access_key_id
+export AWS_SECRET_ACCESS_KEY=your_secret_access_key
+export AWS_DEFAULT_REGION=your_default_region
+```
 
 ### Parameters
 
@@ -84,4 +91,4 @@ The script provides detailed batch and summary outputs, including:
 - **Changed keys**
 
 ### How this was developed
-In order to understand what my approach was, please check [my approach](https://github.com/DarkZatarra/limehome_s3_challenge/DanielsApproach.MD)
+In order to understand what my approach was, please check [my approach](https://github.com/DarkZatarra/limehome_s3_challenge/blob/main/DanielsApproach.MD)
