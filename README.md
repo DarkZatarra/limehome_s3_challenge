@@ -51,7 +51,7 @@ It would have been better to have a fastapi endpoint returning a json, but that 
 ### Example
 
 ```bash
-python3 s3_string_search_v1.py <s3_bucket_name> <substring> [--debug]
+python3 s3_substring_search.py <s3_bucket_name> <substring> [--debug]
 ```
 
 `<s3_bucket_name>`: Replace with the name of your S3 bucket.
@@ -63,13 +63,13 @@ python3 s3_string_search_v1.py <s3_bucket_name> <substring> [--debug]
 To search for the substring "example" in the bucket "my-bucket" with debug mode enabled:
 
 ```
-python3 s3_string_search_v1.py my-bucket example --debug
+python3 s3_substring_search.py my-bucket example --debug
 ```
 
 To run the script without debug mode:
 
 ```
-python3 s3_string_search_v1.py my-bucket example
+python3 s3_substring_search.py my-bucket example
 ```
 
 ### Output
